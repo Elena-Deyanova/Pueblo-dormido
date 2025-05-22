@@ -5,8 +5,12 @@ public abstract class Ciudadano {
     //poner el vulnerable
 
 
+
     public Ciudadano(String nombre) {
         this.nombre = nombre;
+
+
+
     }
 
     public static int getPoblacion() {
@@ -23,6 +27,12 @@ public abstract class Ciudadano {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+
+    public EVulnerable getVulnerable(){
+        if (this instanceof Humano) return EVulnerable.VAMPIRO;
+        else if (this instanceof Vampiro) return EVulnerable.LOBO;
+        else  return EVulnerable.HUMANO;
     }
 
 }
