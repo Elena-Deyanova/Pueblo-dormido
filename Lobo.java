@@ -1,27 +1,85 @@
 import java.util.*;
-public class Lobo extends Ciudadano implements ICicloVital{
 
-      private  static int totalLobos;
-      private static int ultimoLobo;
-      private static Random ALEATORIO;
-      private enum VULNERABLE{};
-      private int vida;
-      private int cuantosHijos;
+public final class Lobo extends Ciudadano implements IBatalla, ICicloVital {
+    private static int totalLobos = 0;
+    private static int ultimoLobo = 0;
+    private static final Random ALEATORIO = new Random();
 
-    public Lobo(String nombre) {
-        super(nombre);
+    private final EVulnerable vulnerable = EVulnerable.HUMANO;
+    private int vida;
+    private int cuantosHijos = 0;
+
+    public Lobo() {
+        super("LOBO" + (++ultimoLobo));
+        vida = ALEATORIO.nextInt(VITALIDAD_MAXIMA * 2) + 1;
+        totalLobos++;
+    }
+
+    public static int getPoblacion() {
+        return totalLobos;
+    }
+
+    public static void setPoblacion(int numero) {
+        totalLobos = numero;
     }
 
     @Override
-    public int reproducir() {
-        return 0;
+    public Ciudadano combate(Ciudadano oponente) {
+        System.out.println(getNombre() + " (L) combate contra " + oponente.getNombre());
+
+        if (oponente.getVulnerable() == EVulnerable.LOBO) {
+            System.out.println("¡" + getNombre() + " ha ganado el combate");
+            oponente.morir(null);  // se elimina
+            return oponente;
+        } else if (getVulnerable() == oponente.getVulnerable()) {
+            System.out.println("Son del mismo tipo, pueden reproducirse");
+            return null;
+        } else {
+            System.out.println(getNombre() + " ha perdido el combate.");
+            return this;
+        }
     }
 
     @Override
-    public int envejecer() {
-        return 0;
+    public void reproducir(ArrayList<Ciudadano> ciudadanos) {
+        int hijosMax = NATALIDAD_MAXIMA * 2;
+        if (cuantosHijos < hijosMax) {
+            Lobo cachorro = new Lobo();
+            ciudadanos.add(cachorro);
+            cuantosHijos++;
+            System.out.println(getNombre() + " ha tenido un cachorro: " + cachorro.getNombre());
+        } else {
+            System.out.println(getNombre() + " ya ha alcanzado el máximo de natalidad.");
+        }
     }
 
+    @Override
+    public void morir(ArrayList<Ciudadano> ciudadanos) {
+        if (ciudadanos != null) {
+            ciudadanos.remove(this);
+        }
+        totalLobos--;
+        setPoblacion(getPoblacion() - 1);
+        System.out.println(getNombre() + " ha muerto.");
+    }
 
+    @Override
+    public void envejecer(ArrayList<Ciudadano> ciudadanos) {
+        vida -= 2; // envejece el doble de rápido
+        System.out.println(getNombre() + " ha envejecido. Vida restante: " + vida);
+        if (vida <= 0) {
+            System.out.println(getNombre() + "L  ha muerto de viejo:( ");
+            morir(ciudadanos);
+        }
+    }
 
+    @Override
+    public EVulnerable getVulnerable() {
+        return vulnerable;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + "Lobo, Vida: " + vida + "  Vulnerable a: " + vulnerable;
+    }
 }
